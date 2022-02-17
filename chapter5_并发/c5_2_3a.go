@@ -55,9 +55,14 @@ func main() {
 	sum := ProcessResult(resultchan)
 
 	fmt.Println("sum=", sum)
+
 }
 
 //初始化待处理task chan
+/**
+taskchan通道容量为10，当写入次数超过10次后将阻塞，
+直到ProcessTask函数中从通道读取数据后将继续写入
+ */
 func InitTask(taskchan chan<- task, r chan int, p int) {
 	qu := p / 10
 	mod := p % 10
@@ -87,6 +92,7 @@ func InitTask(taskchan chan<- task, r chan int, p int) {
 //读取task chan 分发到worker goroutine 处理，workers的总的数量是workers
 func DistributeTask(taskchan <-chan task, workers int, done chan struct{}) {
 
+	//启动workers个goroutine
 	for i := 0; i < workers; i++ {
 		go ProcessTask(taskchan, done)
 	}
@@ -94,6 +100,11 @@ func DistributeTask(taskchan <-chan task, workers int, done chan struct{}) {
 
 //工作goroutine处理具体工作，并将处理结构发送到结果chan
 func ProcessTask(taskchan <-chan task, done chan struct{}) {
+	/**
+		从taskchan通道里面读取数据，读取完后将忘done通道中写数据
+		由于t中的resultchan通道大小为10，因此超过0次后do方法将阻塞，
+		调用ProcessResult从resultchan读取数据后将继续写入。
+	 */
 	for t := range taskchan {
 		t.do()
 	}
@@ -102,6 +113,7 @@ func ProcessTask(taskchan <-chan task, done chan struct{}) {
 
 //通过done channel来同步等待所有工作goroutine的结束，然后关闭结果chan
 func CloseResult(done chan struct{}, resultchan chan int, workers int) {
+	//从done通道中读取workers次数据，读取结束说明resultchan通道中的数据已写入完毕
 	for i := 0; i < workers; i++ {
 		<-done
 	}

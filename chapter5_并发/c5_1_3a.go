@@ -11,9 +11,9 @@ import (
 
 var wg sync.WaitGroup
 var urls = []string{
-	"http://www.golang.org/",
-	"http://www.google.com/",
 	"http://www.qq.com/",
+	"http://www.baidu.com/",
+	"http://www.baidu.com/",
 }
 
 func main() {
@@ -37,4 +37,6 @@ func main() {
 	}
 	// Wait for all HTTP fetches to complete.
 	wg.Wait()
+	println("end")
+
 }

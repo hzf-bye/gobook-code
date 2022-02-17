@@ -19,7 +19,9 @@ func GenerateIntA(done chan struct{}) chan int {
 			select {
 			case ch <- rand.Int():
 			//增加一路监听，就是对退出通知信号done的监听
-			case <-done:
+			case v,ok := <- done :
+				println(ok)
+				fmt.Println(v)
 				break Lable
 			}
 		}
@@ -44,5 +46,6 @@ func main() {
 
 	//此时生产者已经退出
 	println("NumGoroutine=", runtime.NumGoroutine())
+
 
 }

@@ -12,11 +12,12 @@ func main() {
 			//0或者1写入是随机的
 			case ch <- 0:
 			case ch <- 1:
+			case ch <- 2:
 			}
 		}
 	}(ch)
-	for i := 0; i < 10; i++ {
-		println(<-ch)
+	for i := 0; i < 500; i++ {
+		print(<-ch)
 	}
 
 }
